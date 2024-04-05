@@ -1,0 +1,60 @@
+.social-links a:hover i,
+.top-links a:hover i,
+.top-links a:hover span {
+    color: #01aeef !important;
+}
+
+.dropdown-menu a:hover {
+    color: #01aeef !important;
+}
+
+.nav-link:hover {
+    color: #01aeef !important;
+}
+
+.footer-links a:hover,
+.footer-links a:hover .footer-icon {
+    color: #01aeef !important;
+}
+
+.link-hover:hover {
+    color: #01aeef !important;
+}
+
+.carousel-container {
+    max-width: 100%;
+    height: auto;
+}
+
+.remove-dropdown-arrow .dropdown-toggle::after {
+    display: none !important;
+}
+
+
+.carousel-image {
+    width: 100%;
+
+    max-height: 650px;
+
+}
+
+
+
+@media (max-width: 567px) {
+    body {
+        overflow-x: hidden;
+    }
+}
+
+@media (max-width: 567px) {
+    .toHide {
+        display: none;
+        /* Hide the middle layer */
+    }
+}
+
+@media(max-width:567px) {
+    .reduce-height1 {
+        height: 600px;
+    }
+}
