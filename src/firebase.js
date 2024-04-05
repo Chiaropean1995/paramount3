@@ -6,13 +6,13 @@ import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD-Ce3fz1j-z7N6eyynKVZF8hUYd9qH_TU",
-    authDomain: "paramount-valley.firebaseapp.com",
-    projectId: "paramount-valley",
-    storageBucket: "paramount-valley.appspot.com",
-    messagingSenderId: "473791045845",
-    appId: "1:473791045845:web:ecbcaaab5594581d12425c",
-    measurementId: "G-XNXQ3JYP9W"
+    apiKey: import.meta.env.VITE_API_KEY,
+    authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_MESSASING_SENDER_ID,
+    appId: import.meta.env.VITE_APP_ID,
+    measurementId: import.meta.env.VITE_MEASUREMENT_ID
 };
 
 
