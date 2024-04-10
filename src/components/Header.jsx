@@ -30,17 +30,10 @@ export default function Header() {
     const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
     const [showWeatherModal, setShowWeatherModal] = useState(false);
     const [weatherData, setWeatherData] = useState(null);
-    const [profileImageUrl, setProfileImageUrl] = useState("");
 
 
 
-    useEffect(() => {
-        if (currentUser && currentUser.uid) {
-            // Fetch the profile image URL from local storage
-            const imageUrl = localStorage.getItem(`uploadedImageUrl_${currentUser.uid}`);
-            setProfileImageUrl(imageUrl);
-        }
-    }, [currentUser]);
+
 
     useEffect(() => {
         if (currentUser && currentUser.isAuthenticated) {
@@ -220,17 +213,15 @@ export default function Header() {
                                 <li className="me-3 border-end pe-3"><a href="#" className="text-decoration-none"><i className="bi bi-telephone text-muted"></i><span className="text-muted d-none d-md-inline"> +603-3344 5988</span></a></li>
                                 <li><a href="mailto:paramountvalley@live.com" className="text-decoration-none"><i className="bi bi-envelope text-muted"></i><span className="text-muted d-none d-md-inline me-3"> paramountvalley@live.com</span></a></li>
 
-                                <NavDropdown title={<i className="bi bi-person-circle text-muted" style={{ fontSize: "2rem", cursor: "pointer" }}></i>} id="basic-nav-dropdown">
-                                    {currentUser ? (
-                                        <>
-                                            <NavDropdown.Item href="/myprofile">My Profile</NavDropdown.Item>
-                                            <NavDropdown.Divider />
-                                            <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
-                                        </>
-                                    ) : (
-                                        <NavDropdown.Item onClick={handleShowLogin}>Login</NavDropdown.Item>
-                                    )}
-                                </NavDropdown>
+                                {currentUser ? (
+                                    <NavDropdown title={<i className="bi bi-person-circle text-muted" style={{ fontSize: "2rem", cursor: "pointer" }}></i>} id="basic-nav-dropdown">
+                                        <NavDropdown.Item href="/myprofile">My Profile</NavDropdown.Item>
+                                        <NavDropdown.Divider />
+                                        <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+                                    </NavDropdown>
+                                ) : (
+                                    <i className="bi bi-person-circle text-muted" style={{ fontSize: "2rem", cursor: "pointer" }} onClick={() => setShowLoginModal(true)}></i>
+                                )}
 
 
                             </ul>
