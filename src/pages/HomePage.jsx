@@ -68,7 +68,7 @@ export default function ProfilePage() {
             console.log('New Project Data:', newProject);
 
             // Update state with the new project
-            setProjects([...projects, newProject]);
+            setProjects(prevProjects => [...prevProjects, newProject]);
         } catch (error) {
             console.error('Error adding project:', error);
         }
@@ -105,6 +105,12 @@ export default function ProfilePage() {
         project.location.toLowerCase().includes(searchTerm.toLowerCase())
     ); // Filter the projects based on the search term
 
+    const handleViewProjects = () => {
+        const projectSection = document.getElementById("projectListingSection");
+        if (projectSection) {
+            projectSection.scrollIntoView({ behavior: "smooth" });
+        }
+    };
 
 
     return (
@@ -125,6 +131,10 @@ export default function ProfilePage() {
                                 <Carousel.Item key={index} className="carousel-item">
                                     <img src={picture.src} alt={`Slide ${index + 1}`} className="d-block w-100 carousel-image" />
                                     <Carousel.Caption>
+                                        {index === 0 && (
+                                            <Button variant="primary" onClick={() => handleViewProjects()} style={{ marginBottom: "200px", backgroundColor: "transparent", border: "1px solid white", borderRadius: "0px", padding: "20px" }}>VIEW PROJECTS <i className="bi bi-arrow-down"></i>
+                                            </Button>
+                                        )}
                                         <h3>{picture.label}</h3>
                                         <p>{picture.description}</p>
                                     </Carousel.Caption>
@@ -136,10 +146,12 @@ export default function ProfilePage() {
             </Container>
 
 
-            <section className="latest-projects" style={{ paddingTop: "50px" }}>
+            <section id="projectListingSection" className="latest-projects" style={{ paddingTop: "50px" }}>
                 <Container>
-                    <p className="text-center" style={{ fontStyle: 'italic', color: "grey" }}>Properties for sale</p>
-                    <h2 className="text-center mb-4">OUR LATEST PROJECT LISTINGS</h2>
+                    <p className="text-center" style={{
+                        fontStyle: 'italic', color: "grey"
+                    }}>Properties for sale</p>
+                    < h2 className="text-center mb-4" > OUR LATEST PROJECT LISTINGS</h2>
                     <Form.Group className="d-flex justify-content-end">
                         <div className="input-group" style={{ width: "200px" }}>
                             <Form.Control
@@ -165,49 +177,56 @@ export default function ProfilePage() {
                         </div>
                     ) : (
                         <Row >
-                            {filteredProjects.map((project, index) => (
-                                <Col key={index} sm={12} md={4} className="mb-5">
-                                    <ProjectCard
-                                        key={project.id}
-                                        id={project.id}
-                                        price={project.price}
-                                        image_url={project.image_url}
-                                        title={project.title}
-                                        location={project.location}
-                                        description={project.description}
-                                        car_park={project.car_park}
-                                        bathroom={project.bathroom}
-                                        bedroom={project.bedroom}
-                                        room_size={project.room_size}
-                                        progress_percentage={project.progress_percentage}
-                                        onDelete={() => handleDeleteProject(project.id)}
-                                    />
-
-                                </Col>
-                            ))}
+                            {filteredProjects.length === 0 ? (
+                                <p className="text-center" style={{ color: 'red', fontStyle: 'italic' }}>No projects found</p>
+                            ) : (
+                                <Row>
+                                    {filteredProjects.map((project, index) => (
+                                        <Col key={index} sm={12} md={4} className="mb-5">
+                                            <ProjectCard
+                                                key={project.id}
+                                                id={project.id}
+                                                price={project.price}
+                                                image_url={project.image_url}
+                                                title={project.title}
+                                                location={project.location}
+                                                description={project.description}
+                                                car_park={project.car_park}
+                                                bathroom={project.bathroom}
+                                                bedroom={project.bedroom}
+                                                room_size={project.room_size}
+                                                progress_percentage={project.progress_percentage}
+                                                onDelete={() => handleDeleteProject(project.id)}
+                                            />
+                                        </Col>
+                                    ))}
+                                </Row>
+                            )}
                         </Row>
 
                     )}
-                    <Row className="justify-content-center mt-3">
-                        <Button
-                            variant="outline-primary"
-                            onClick={handlePrevPage}
-                            disabled={currentPage === 1}
-                            style={{ width: "100px", height: "40px", display: "flex", alignItems: "center", justifyContent: "flex-start", backgroundColor: "white", color: "blue", borderRadius: "10px" }}
-                        >
-                            <i className="bi bi-arrow-left"></i> Previous
-                        </Button>
-                        <Button
-                            variant="outline-primary"
-                            onClick={handleNextPage}
-                            disabled={currentPage === totalPages}
-                            style={{ width: "100px", height: "40px", backgroundColor: "white", color: "blue", marginLeft: "10px", borderRadius: "10px" }}
-                        >
-                            Next <i className="bi bi-arrow-right"></i>
-                        </Button>
-                    </Row>
+                    {filteredProjects.length > 0 && (
+                        <Row className="justify-content-center mt-3">
+                            <Button
+                                variant="outline-primary"
+                                onClick={handlePrevPage}
+                                disabled={currentPage === 1}
+                                style={{ width: "100px", height: "40px", display: "flex", alignItems: "center", justifyContent: "flex-start", backgroundColor: "white", color: "blue", borderRadius: "10px" }}
+                            >
+                                <i className="bi bi-arrow-left"></i> Previous
+                            </Button>
+                            <Button
+                                variant="outline-primary"
+                                onClick={handleNextPage}
+                                disabled={currentPage === totalPages}
+                                style={{ width: "100px", height: "40px", backgroundColor: "white", color: "blue", marginLeft: "10px", borderRadius: "10px" }}
+                            >
+                                Next <i className="bi bi-arrow-right"></i>
+                            </Button>
+                        </Row>
+                    )}
                 </Container>
-            </section>
+            </section >
             <Footer />
         </>
     );

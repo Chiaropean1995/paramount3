@@ -10,6 +10,9 @@ import {
     createUserWithEmailAndPassword,
     signInWithPopup,
 } from "firebase/auth"
+import axios from "axios"
+import { BiSun } from "react-icons/bi"
+
 
 
 
@@ -23,6 +26,21 @@ export default function Header() {
     const auth = getAuth();
     const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [showCoordinates, setShowCoordinates] = useState(false);
+    const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
+    const [showWeatherModal, setShowWeatherModal] = useState(false);
+    const [weatherData, setWeatherData] = useState(null);
+    const [profileImageUrl, setProfileImageUrl] = useState("");
+
+
+
+    useEffect(() => {
+        if (currentUser && currentUser.uid) {
+            // Fetch the profile image URL from local storage
+            const imageUrl = localStorage.getItem(`uploadedImageUrl_${currentUser.uid}`);
+            setProfileImageUrl(imageUrl);
+        }
+    }, [currentUser]);
 
     useEffect(() => {
         if (currentUser && currentUser.isAuthenticated) {
@@ -56,12 +74,20 @@ export default function Header() {
             setErrorMessage("Invalid username or password. Please try again.");
             setTimeout(() => {
                 setErrorMessage("");
-            }, 10000);
+            }, 5000);
         }
     };
 
     const handleSignUp = async (e) => {
         e.preventDefault();
+        if (username.length < 6 || password.length < 6) {
+            setErrorMessage("Username and password must be at least 6 characters long.");
+            setTimeout(() => {
+                setErrorMessage("");
+            }, 5000);
+            return;
+
+        }
         try {
             const res = await createUserWithEmailAndPassword(
                 auth,
@@ -107,6 +133,64 @@ export default function Header() {
             });
     };
 
+    useEffect(() => {
+        const fetchWeatherData = async () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        setCoordinates({ lat: latitude, lon: longitude }); // Set coordinates state
+                        const apiKey = "a6054ffd65891138522d16385cf4941a";
+                        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+                        try {
+                            const response = await axios.get(apiUrl);
+                            setWeatherData(response.data);
+                            // Check if weather data modal has already been shown
+                            const weatherModalShown = localStorage.getItem('weatherModalShown');
+                            if (!weatherModalShown) {
+                                setShowWeatherModal(true);
+                                // Set flag in local storage to indicate modal has been shown
+                                localStorage.setItem('weatherModalShown', 'true');
+                            }
+                        } catch (error) {
+                            console.error("Error fetching weather data:", error);
+                        }
+                    },
+                    (error) => {
+                        console.error("Error getting geolocation:", error);
+                    }
+                );
+            } else {
+                console.error("Geolocation is not supported by this browser.");
+            }
+        };
+
+        fetchWeatherData();
+    }, []);
+
+
+    const viewOnMap = () => {
+        if (coordinates) {
+            // Construct the URL for Google Maps with the coordinates
+            const url = `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lon}`;
+            // Open the URL in a new tab
+            window.open(url, '_blank');
+        } else {
+            console.error("Coordinates not available.");
+        }
+    };
+    const handleCloseWeatherModal = () => {
+        setShowWeatherModal(false);
+    };
+
+    const handleSunIconClick = () => {
+        setShowWeatherModal(true);
+    };
+
+
+
+
+
 
     return (
         <>
@@ -120,29 +204,33 @@ export default function Header() {
                                 <li className="me-4"><a href="#"><i className="bi bi-twitter text-muted"></i></a></li>
                                 <li className="me-4"><a href="#"><i className="bi bi-google text-muted"></i></a></li>
                                 <li><a href="#"><i className="bi bi-linkedin text-muted"></i></a></li>
+                                <li>
+                                    <i className="bi bi-geo-alt-fill ms-4" onClick={() => setShowCoordinates(true)}></i>
+                                </li>
+                                <li>
+                                    <div className="sun-icon ms-4" onClick={handleSunIconClick}>
+                                        <BiSun size={30} />
+                                    </div>
+                                </li>
                             </ul>
                         </div>
 
                         <div className="col-md-6 d-flex flex-column justify-content-md-end justify-content-center align-items-center align-items-md-end">
                             <ul className="top-links list-unstyled mb-0 d-flex align-items-center">
-                                <li className="me-3 border-end pe-3"><a href="#" className="text-decoration-none"><i className="bi bi-telephone text-muted"></i><span className="text-muted d-none d-md-inline"> +603-8888 8888</span></a></li>
-                                <li><a href="mailto:paramountvalley@live.com" className="text-decoration-none"><i className="bi bi-envelope text-muted"></i><span className="text-muted d-none d-md-inline"> paramount@live.com</span></a></li>
+                                <li className="me-3 border-end pe-3"><a href="#" className="text-decoration-none"><i className="bi bi-telephone text-muted"></i><span className="text-muted d-none d-md-inline"> +603-3344 5988</span></a></li>
+                                <li><a href="mailto:paramountvalley@live.com" className="text-decoration-none"><i className="bi bi-envelope text-muted"></i><span className="text-muted d-none d-md-inline me-3"> paramountvalley@live.com</span></a></li>
 
-                                <li>
+                                <NavDropdown title={<i className="bi bi-person-circle text-muted" style={{ fontSize: "2rem", cursor: "pointer" }}></i>} id="basic-nav-dropdown">
                                     {currentUser ? (
-                                        <NavDropdown title={<i className="bi bi-person-circle text-muted ms-3" style={{ fontSize: "2rem" }} />} className="remove-dropdown-arrow" id="basic-nav-dropdown" >
-                                            <NavDropdown.Item href="/profilepage">My Profile</NavDropdown.Item>
+                                        <>
+                                            <NavDropdown.Item href="/myprofile">My Profile</NavDropdown.Item>
                                             <NavDropdown.Divider />
                                             <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
-                                        </NavDropdown>
+                                        </>
                                     ) : (
-                                        <li>
-                                            <a href="#" className="text-decoration-none" onClick={handleShowLogin}>
-                                                <i className="bi bi-person-circle text-muted ms-3" style={{ fontSize: "2rem" }}></i>
-                                            </a>
-                                        </li>
+                                        <NavDropdown.Item onClick={handleShowLogin}>Login</NavDropdown.Item>
                                     )}
-                                </li>
+                                </NavDropdown>
 
 
                             </ul>
@@ -179,10 +267,18 @@ export default function Header() {
                                 placeholder="Password"
                             />
                         </Form.Group>
+                        {showLoginModal === "SignUp" && errorMessage && (
+                            <p style={{ color: "red", marginBottom: "15px" }}>
+                                {errorMessage}
+                            </p>
+
+                        )}
+
                         {showLoginModal === "login" && errorMessage && (
                             <p style={{ color: "red", marginBottom: "15px" }}>
                                 {errorMessage}
                             </p>
+
                         )}
                         {showLoginModal === "SignUp" && (
                             <p style={{ fontSize: "12px" }}>
@@ -222,6 +318,63 @@ export default function Header() {
                 </Modal.Body>
             </Modal>
 
+            <Modal show={showCoordinates} onHide={() => setShowCoordinates(false)} centered>
+                <Modal.Header closeButton style={{ backgroundColor: 'blue', color: 'white' }}>
+                    <Modal.Title>Current Coordinates</Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{ backgroundColor: 'lightgray' }}>
+                    <p style={{ textAlign: 'center' }}>Latitude: {coordinates.lat}</p>
+                    <p style={{ textAlign: 'center' }}>Longitude: {coordinates.lon}</p>
+                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                        <Button variant="primary" onClick={viewOnMap}>View on Map</Button>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer style={{ backgroundColor: 'lightgray' }}>
+                    <Button variant="secondary" onClick={() => setShowCoordinates(false)}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal
+                show={showWeatherModal}
+                onHide={handleCloseWeatherModal}
+                centered
+            >
+                <Modal.Header closeButton className="bg-primary text-light">
+                    <Modal.Title className="fw-bold">Weather Information</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="bg-light">
+                    {weatherData && (
+                        <>
+                            <div className="mb-3">
+                                <h5 className="fw-bold">Temperature:</h5>
+                                <p>{weatherData.main.temp}°C</p>
+                            </div>
+                            <div className="mb-3">
+                                <h5 className="fw-bold">Description:</h5>
+                                <p>{weatherData.weather[0].description}</p>
+                            </div>
+                            <div className="mb-3">
+                                <h5 className="fw-bold">Humidity:</h5>
+                                <p>{weatherData.main.humidity}%</p>
+                            </div>
+                            <div className="mb-3">
+                                <h5 className="fw-bold">Wind Speed:</h5>
+                                <p>{weatherData.wind.speed} m/s</p>
+                            </div>
+                            <div>
+                                <h5 className="fw-bold">Pressure:</h5>
+                                <p>{weatherData.main.pressure} hPa</p>
+                            </div>
+                        </>
+                    )}
+                </Modal.Body>
+                <Modal.Footer className="bg-light">
+                    <Button variant="secondary" onClick={handleCloseWeatherModal}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     )
 } 

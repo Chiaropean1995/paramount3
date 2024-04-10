@@ -58,3 +58,15 @@
         height: 600px;
     }
 }
+
+body {
+    overflow-x: hidden;
+}
+
+.bi-geo-alt-fill:hover {
+    color: red;
+}
+
+.sun-icon:hover {
+    color: rgb(226, 226, 161);
+}
