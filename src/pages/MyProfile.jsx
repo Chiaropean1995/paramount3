@@ -11,6 +11,7 @@ export default function ProfilePage() {
         <>
             <Header />
             <Navbar1 />
+            <p>hello</p>
 
         </>
     );
